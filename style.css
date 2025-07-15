@@ -1,24 +1,31 @@
 body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #f0f0f0;
+  font-family: sans-serif;
+  background: #f5f5f5;
+  padding: 20px;
+  text-align: center;
 }
-#grid {
+
+h1 {
+  color: #c2185b;
+}
+
+#malla {
   display: grid;
-  grid-template-columns: repeat(10, 40px);
-  grid-template-rows: repeat(10, 40px);
-  gap: 2px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
-.cell {
-  width: 40px;
-  height: 40px;
-  background-color: #ddd;
-  border: 1px solid #999;
+
+.ramo {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
 }
-.cell:hover {
-  background-color: #4caf50;
+
+.ramo:hover {
+  background: #ffe0ec;
 }
