@@ -1,13 +1,185 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Malla Obstetricia - ULagos</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malla Obstetricia - Universidad de Los Lagos</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #fff6f2;
+      margin: 0;
+      padding: 1rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #c0392b;
+    }
+    .malla {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .fila {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .semestre {
+      flex: 1;
+      background-color: #fceae4;
+      border: 2px solid #e67e22;
+      border-radius: 8px;
+      padding: 1rem;
+      min-width: 200px;
+    }
+    .semestre h2 {
+      text-align: center;
+      color: #d35400;
+    }
+    .ramo {
+      background-color: #fde3cf;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      position: relative;
+    }
+    .ramo:hover {
+      background-color: #f8cfa6;
+    }
+    .ramo.aprobado {
+      background-color: #d4efdf;
+      text-decoration: line-through;
+    }
+    .ramo.bloqueado {
+      background-color: #f5b7b1;
+      cursor: not-allowed;
+    }
+    .tooltip {
+      visibility: hidden;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.8rem;
+    }
+    .ramo:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
-  <h1>Malla Interactiva Obstetricia y Puericultura - ULagos</h1>
-  <div id="malla"></div>
-  <script src="script.js"></script>
+  <h1>Malla Obstetricia y Puericultura - Universidad de Los Lagos</h1>
+  <div class="malla">
+    <div class="fila" id="fila-superior"></div>
+    <div class="fila" id="fila-inferior"></div>
+  </div>
+
+  <script>
+    const ramos = [
+      { id: "comunicacion", nombre: "Comunicación I", semestre: 1, prereq: [] },
+      { id: "fundamentos", nombre: "Fundamentos de la Salud Sexual y Reproductiva", semestre: 1, prereq: [] },
+      { id: "biologicas", nombre: "Bases Biológicas en SSR", semestre: 1, prereq: [] },
+      { id: "bioquimica", nombre: "Bases Bioquímicas en SSR", semestre: 1, prereq: [] },
+      { id: "antropologia", nombre: "Antropología en SSR", semestre: 1, prereq: [] },
+      { id: "ciudadania1", nombre: "Ciudadanía I", semestre: 1, prereq: [] },
+      { id: "bioestadistica", nombre: "Bioestadística", semestre: 2, prereq: [] },
+      { id: "microbiologia", nombre: "Microbiología y Parasitología", semestre: 2, prereq: [] },
+      { id: "anatomia", nombre: "Anatomía", semestre: 2, prereq: [] },
+      { id: "fisiologia", nombre: "Fisiología e Histología", semestre: 2, prereq: [] },
+      { id: "enfermeria", nombre: "Enfermería Básica", semestre: 2, prereq: [] },
+        { id: "electivo1", nombre: "Electivo UFIN", semestre: 2, prereq: [] },
+
+      { id: "ingles1", nombre: "Inglés I", semestre: 3, prereq: [] },
+      { id: "epidemiologia", nombre: "Epidemiología", semestre: 3, prereq: [] },
+      { id: "psicologia", nombre: "Psicología", semestre: 3, prereq: [] },
+      { id: "farmacologia", nombre: "Fisiopatología y Farmacología", semestre: 3, prereq: ["fisiologia"] },
+      { id: "fisio_gine", nombre: "Bases Fisiológicas en Ginecología", semestre: 3, prereq: [] },
+      { id: "proceso_ssr", nombre: "Proceso de Enfermería en SSR", semestre: 3, prereq: ["enfermeria", "fisiologia"] },
+
+      { id: "ingles2", nombre: "Inglés II", semestre: 4, prereq: ["ingles1"] },
+      { id: "fisio_obs", nombre: "Bases Fisiológicas en Obstetricia y Neonatología", semestre: 4, prereq: [] },
+      { id: "patogine", nombre: "Bases Patológicas en Ginecología", semestre: 4, prereq: ["fisio_gine"] },
+      { id: "saludfam", nombre: "Salud Familiar y Comunitaria", semestre: 4, prereq: [] },
+      { id: "proceso_gineobs", nombre: "Proceso de Enfermería en Gineco-Obstetricia", semestre: 4, prereq: ["proceso_ssr", "farmacologia"] },
+      { id: "electivo2", nombre: "Electivo UFIN", semestre: 4, prereq: [] },
+
+      { id: "ingles3", nombre: "Inglés III", semestre: 5, prereq: ["ingles2"] },
+      { id: "gestion_ssr", nombre: "Introducción a la Gestión en SSR", semestre: 5, prereq: [] },
+      { id: "pato_obsneo", nombre: "Bases Patológicas en Obstetricia y Neonatología", semestre: 5, prereq: ["fisio_obs", "farmacologia"] },
+      { id: "educacion_ssr", nombre: "Educación en SSR", semestre: 5, prereq: ["patogine"] },
+      { id: "salud_aps", nombre: "Salud Familiar en APS", semestre: 5, prereq: ["saludfam", "patogine", "enfermeria", "proceso_ssr", "proceso_gineobs"] },
+
+      { id: "ingles4", nombre: "Inglés IV", semestre: 6, prereq: ["ingles3"] },
+      { id: "investigacion", nombre: "Metodología de la Investigación", semestre: 6, prereq: [] },
+      { id: "clinica_perinatal", nombre: "Clínica de Cuidados Perinatales", semestre: 6, prereq: ["pato_obsneo", "salud_aps", "farmacologia", "enfermeria", "proceso_ssr", "proceso_gineobs"] },
+      { id: "electivo3", nombre: "Electivo UFIN", semestre: 6, prereq: [] },
+
+      { id: "seminario", nombre: "Seminario de Investigación", semestre: 7, prereq: ["investigacion"] },
+      { id: "gineonco", nombre: "Clínica Gine-oncológica", semestre: 7, prereq: ["patogine", "salud_aps", "farmacologia", "enfermeria", "proceso_ssr", "proceso_gineobs"] },
+      { id: "electivo4", nombre: "Electivo Farmacología Aplicada", semestre: 7, prereq: [] },
+
+      { id: "ciudadania2", nombre: "Gestión de Proyectos (Ciudadanía II)", semestre: 8, prereq: [] },
+      { id: "perinatal_pato", nombre: "Clínica Perinatal Patológica", semestre: 8, prereq: ["clinica_perinatal", "enfermeria", "proceso_ssr", "proceso_gineobs"] },
+
+      { id: "internado1", nombre: "Internado I", semestre: 9, prereq: ["ciudadania2", "perinatal_pato"] },
+
+      { id: "internado2", nombre: "Internado II", semestre: 10, prereq: ["ciudadania2", "perinatal_pato"] },
+      { id: "electivo_final", nombre: "Electivo Especialización/Postgrado", semestre: 10, prereq: ["internado2"] }
+    ];
+
+    const estado = JSON.parse(localStorage.getItem("estadoRamos") || "{}");
+
+    function guardarEstado() {
+      localStorage.setItem("estadoRamos", JSON.stringify(estado));
+    }
+
+    function crearRamo(ramo) {
+      const div = document.createElement("div");
+      div.className = "ramo";
+      div.textContent = ramo.nombre;
+      div.dataset.id = ramo.id;
+
+      if (estado[ramo.id]) {
+        div.classList.add("aprobado");
+      } else if (ramo.prereq.some(p => !estado[p])) {
+        div.classList.add("bloqueado");
+        const tooltip = document.createElement("div");
+        tooltip.className = "tooltip";
+        tooltip.textContent = "Falta aprobar: " + ramo.prereq.filter(p => !estado[p]).join(", ");
+        div.appendChild(tooltip);
+      }
+
+      div.addEventListener("click", () => {
+        if (div.classList.contains("bloqueado")) return;
+        div.classList.toggle("aprobado");
+        estado[ramo.id] = div.classList.contains("aprobado");
+        guardarEstado();
+        location.reload();
+      });
+      return div;
+    }
+
+    for (let s = 1; s <= 10; s++) {
+      const cont = document.createElement("div");
+      cont.className = "semestre";
+      cont.innerHTML = `<h2>Semestre ${s}</h2>`;
+      ramos.filter(r => r.semestre === s).forEach(r => cont.appendChild(crearRamo(r)));
+      (s % 2 === 1 ? document.getElementById("fila-superior") : document.getElementById("fila-inferior")).appendChild(cont);
+    }
+  </script>
 </body>
 </html>
